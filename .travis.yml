@@ -1,0 +1,17 @@
+language: python
+python:
+  - "3.6"
+jobs:
+  include:
+    - name: 'Pylint'
+      install:
+        - pip install .
+        - pip install pylint pylint-quotes
+      script:
+        - pylint museful
+    - name: 'Code style'
+      install:
+        - pip install pycodestyle pydocstyle
+      script:
+        - pycodestyle museful
+        - pydocstyle museful
