@@ -109,9 +109,27 @@ def normalize_tempo(sequence, new_tempo=60):
 
 
 def split_on_downbeats(sequence, bars_per_segment, downbeats=None, skip_bars=0,
-                       min_notes_per_segment=0, include_span=False):
+                       min_notes_per_segment=0, include_span=False, tolerance=1e-6):
+    """Split a note sequence on bar boundaries.
+
+    Args:
+        sequence: A `NoteSequence`.
+        bars_per_segment: The number of bars (downbeats) per segment.
+        downbeats: Downbeat times in seconds. If not specified, they will be determined using
+            `pretty_midi`.
+        skip_bars: The index of the bar to start at.
+        min_notes_per_segment: The minimum required number of notes per segment. Segments
+            containing fewer notes will be skipped.
+        include_span: If `True`, the output will be tuples of the form
+            `(start_bar_idx, end_bar_idx, segment)`.
+        tolerance: The maximum time in seconds a note can precede a downbeat to be included in the
+            following bar.
+    Yields:
+        `NoteSequence`s, or tuples of the form `(start_bar_idx, end_bar_idx, segment)`.
+    """
     if downbeats is None:
         downbeats = midi_io.sequence_proto_to_pretty_midi(sequence).get_downbeats()
+    downbeats = [d - tolerance for d in downbeats]
     downbeats = [d for d in downbeats if d < sequence.total_time]
 
     try:
